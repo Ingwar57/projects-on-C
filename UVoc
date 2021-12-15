@@ -1,0 +1,416 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>
+#include <conio.h>
+#include <time.h>
+#define N 100
+
+typedef struct{
+	char word[30];
+	char translation[40];
+	int number;
+}Dict;
+
+int readFile(char** mass,Dict** arr,char *choise);
+void Game();
+void game2 ();
+void UaEn(Dict *arr, int max,int min);
+void EnUa(Dict *arr, int max, int min);
+void WordToMemory();
+
+
+int GetVariant(int count);
+int RandomGenerator(int min, int max);
+void gamedefine1(int max,Dict *arr);
+void ShowList(int max, Dict *arr);
+void gamedefine(int max,Dict *arr);
+
+void PrintMenu();
+void PrintMenu1();
+char Chosevar();
+
+
+
+int main(){
+	int variant;
+	char variant1;
+	SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);	
+    
+    do {
+        PrintMenu(); 
+        variant = GetVariant(3); 
+
+        switch (variant) {
+            case 1:
+                WordToMemory();
+                break;
+                
+            case 2:do{
+					PrintMenu1(); 
+					variant1=Chosevar();
+					switch(variant1){
+							case '1':Game();break;
+							case '2':game2();break;	
+					}
+					
+					}while(variant1!='3');break;
+					
+            case 3: printf("Bye bye..."); break;      
+        }
+ 
+    } while (variant != 3);
+
+	return 0;
+}
+
+
+//--main funxtions
+void WordToMemory(){ 
+
+	FILE *fp; 
+	char* text;
+	int n;  
+	
+		Dict* mas=(Dict*)malloc(sizeof(Dict));
+		text=(char*)malloc(sizeof(char)*20); 
+	
+	do{
+		system("cls");
+		fp=fopen("vocabulary.txt","a+");
+	while(fscanf(fp,"%s",text)!=EOF){ 	
+	if (atoi(text)==0) continue;
+		n=1+atoi(text);
+		}
+		
+		printf("Enter the WORD wich you want MEMORIZE...\n");
+		fflush(stdin);		
+		printf("input foreign word: ");
+		scanf("%s",&mas->word);
+		fflush(stdin);
+		printf("input translation: ");
+		scanf("%s",&mas->translation);	
+		mas->number=n;
+	
+		printf("%i %s %s \n",mas->number,mas->word,mas->translation);
+		fprintf(fp,"%i %s %s\n",mas->number,mas->word,mas->translation);
+	
+		fclose(fp);
+		printf("press ENTER for add one more word or ESC for rueturn to menu...\n");
+		
+	} while(getch()!=27);
+}
+void UaEn(Dict *arr, int max,int min){
+	
+	int RW;
+	int score=0, miss=0;
+	char a[20];
+	
+	do{
+		system("cls");	
+		RW=RandomGenerator(min,max);
+		do{
+			system("cls");
+			printf("\n  If you want go back TO MENU press ESC...\n");
+			printf("+-----------------------------+-----------+\n");
+			printf("|     Translate the word:     |YOUR SCORE:|\n");
+			printf("+-----------------------------+           |\n");
+			printf("|%17s            |%6i     |\n",arr[RW].translation,score);
+			printf("+-----------------------------+-----------+\n");
+			printf("Your answer: ");
+	
+			fflush(stdin);
+			scanf("%s",a);
+				
+		if(strncmp(a,arr[RW].word,(strlen(arr[RW].word)/2))!=0){
+			printf("\n MISS, try again...\n");
+			score--;
+			miss++;
+			getch();
+		}
+		
+		if(strncmp(a,arr[RW].word,(strlen(arr[RW].word)/2))==0 && strcmp(a,arr[RW].word)==-1){
+			printf("\nyou just ALMOST GUESS, try again...\n");
+			miss++;
+			getch();
+		}
+	
+		if(strcmp(arr[RW].word,a)==0){
+			score++;
+			printf("...\n   !!! YOU ARE THE BEST OF THE BEST !!!  \n");
+			break;
+		}
+
+		if (score<=0||miss>2){
+			printf("hint: %s",arr[RW].word);
+			miss=0;
+			getch();
+		}
+			
+		}while(1);	
+	
+		printf("\n KEEP PLAING - press any key, ESC-exit...\n");
+		
+		if (getch()==27) break;
+						
+	}while(1);
+}
+void EnUa(Dict *arr, int max, int min){
+	int score=0,i;
+	int mas[4]; 
+	char ans;
+	
+	do{	
+		system("cls");
+	for(int j=0;j<4;j++){
+		mas[j]=RandomGenerator(0,max-1); 
+    	for(i=j-1; i>=0; i--){
+    		if(mas[i]==mas[j]) break;
+		}
+		if(i>=0) j--;	
+	}
+
+int tru=RandomGenerator(0,3);
+
+
+printf("\n          CHOSE RIGHT WORD\n");
+printf("+-----------------------------------+\n");
+printf("|    %15s                |\n",arr[mas[tru]].word); //+1->
+printf("+-----------------+-----------------+\n");
+printf("|%i.%15s|%i.%15s|\n",1,arr[mas[0 ]].translation,2,arr[mas[1]].translation);
+printf("|-----------------+-----------------|\n");
+printf("|%i.%15s|%i.%15s|\n",3,arr[mas[2]].translation,4,arr[mas[3]].translation);
+printf("+-----------------+-----------------+\n");
+
+printf("Your answer-> ");
+
+	do{
+		ans=getch();
+	}while(ans<'1' || ans>'4');
+	printf("%c\n",ans);
+
+switch(ans){
+		case '1': 
+			if(arr[mas[0]].translation==arr[mas[tru]].translation){
+				score++;
+				printf("TRUE");
+				getch();}
+			else {
+				score--;
+				printf("FALSE");
+				getch();
+				}break;
+				
+		case '2': 
+			if(arr[mas[1]].translation==arr[mas[tru]].translation){
+				score++;
+				printf("TRUE");
+				getch();}
+			else {
+				score--;
+				printf("FALSE");
+				getch();
+				}break;		
+		
+		case '3': 
+			if(arr[mas[2]].translation==arr[mas[tru]].translation){
+				score++;
+				printf("TRUE");
+				getch();}
+			else {
+				score--;
+				printf("FALSE");
+				getch();
+				}break;
+		
+		case '4': 
+			if(arr[mas[3]].translation==arr[mas[tru]].translation){
+				score++;
+				printf("TRUE");
+				getch();}
+			else {
+				score--;
+				printf("FALSE");
+				getch();
+				}break;		
+		}
+
+	printf("\nif you want to continue press ANY KEY or ESC for exit...");
+		if (getch()==27) break;
+	}while(1);
+}
+void Game(){
+
+	char* mass;
+	Dict* arr;
+	int max;
+	char choise;
+
+	max=readFile(&mass,&arr,&choise);
+	switch(choise){
+		case '1':EnUa(arr,max,0) ;break;
+		case '2':gamedefine1(max, arr);break;	
+	}
+}
+void game2 (){
+
+	char* mass;
+	Dict* arr;
+	int max;
+	char choise;
+	
+	max=readFile(&mass,&arr,&choise);
+	
+	switch(choise){
+		case '1': UaEn(arr,max,0);break;
+		case '2': gamedefine(max,arr);break;	
+	}
+}
+int readFile(char** mass,Dict** arr,char *choise){
+	FILE *fp;
+	int count=1,x=0,y=0,z=0,ccount=0;
+	int max;
+    int  score=0; 
+ 		
+	system("cls");
+	srand(time(NULL));
+	
+		fflush(stdin);
+		*mass=(char*)malloc(sizeof(char)*20);
+		*arr=(Dict*)malloc(sizeof(Dict)*1);	
+		fp=fopen("vocabulary.txt","r");
+			if(fp==NULL) printf("no such file");
+		
+			 //-add text to structures duoble pointern function-
+	while(fscanf(fp,"%s",(*mass))!=EOF){ 
+		
+		if(atoi(*mass)!=0){
+			(*arr)[x].number=atoi(*mass);
+			x++;
+			}
+		if(count==2) {
+			strcpy((*arr)[y].word,(*mass));
+			y++;
+			}
+		if(count==3){
+			strcpy((*arr)[z].translation,(*mass));
+			z++;
+			}
+			count++;
+		if(count>3) count=1;
+		
+		ccount++;
+		if(ccount%3==0)
+		*arr=(Dict*)realloc((*arr),sizeof(Dict)*((ccount/3)+1));
+		else continue;
+	}
+//--------------------------------------------------------------------							
+	fclose(fp);
+	max=ccount/3;  
+	
+		system("cls");
+		printf("GAME MODES:\n");
+		printf("1.Random game\n");
+		printf("2.Customize game\n");
+		printf("3.Return to menu\n");
+		do{
+		*choise=getch();
+		}while(*choise<'1' || *choise>'3');
+		printf("%c\n",*choise);
+
+	return max;
+}
+//--common functions(support)
+void gamedefine(int max,Dict *arr){
+	int mi, ma;
+		ShowList(max,arr);
+		system("cls");
+	do{
+		printf("input min: ");
+		scanf("%i",&mi);
+		printf("printf max: ");
+	
+	scanf("%i",&ma);
+	if(mi<1||mi>max-3||ma<mi+3||ma>max||ma<1) 
+	printf("incorrect input, gap should be minmum 4 words...\n");
+
+	}while(mi<1||mi>max-3||ma<mi+3||ma>max||ma<1);
+	
+	UaEn(arr,ma-1,mi-1);
+}
+void PrintMenu() {
+	
+    system("cls");  // î÷èùàåì ýêðàí
+    printf("                    !!! IMPORTANT !!!\n");
+    printf("Hello this program created for practising important for you words,\n");
+    printf("ADD minimum 4 WORD before start the GAME, press button '1'\n");
+    printf("##################################################################\n");
+    printf("CHOSE OPTION:\n");
+    printf("1. ADD WORDS\n");
+    printf("2. GAMES\n");
+    printf("3. EXIT\n");  
+    printf(">");
+}
+void PrintMenu1() {
+	
+    system("cls");  
+    
+    printf("CHOSE THE GAME:\n");
+    printf("1. GUESS WORD\n");
+    printf("2. TYPE THE WORD\n");
+    printf("3. Return back\n");  
+    
+}
+int GetVariant(int count) {
+
+	int variant;
+    char s[100];
+    scanf("%s",&s); 
+    	while (sscanf(s, "%d", &variant) != 1 || variant < 1 || variant > count) {
+        printf("\nIncorrect input. Try again: "); 
+        scanf("%s",&s); 
+    	}
+	return variant;
+}
+char Chosevar(){       
+	char ans;
+	do{
+		ans=getch();
+	}while(ans<'1' || ans>'3');
+return ans;
+}
+void ShowList(int max, Dict *arr){
+	system("cls");
+	printf("Define your list for practicing\n");
+	do{
+	for(int j=0;j<max;j++)
+		printf("%i %s %s\n",arr[j].number,arr[j].word,arr[j].translation );
+		printf("\n Press ENTER to Continue\n");
+		if (getch()==13) break;
+	}while(1);
+}
+int RandomGenerator(int min, int max){
+	int number;
+		number=min+rand()%(max-min+1);
+	return number;
+}
+void gamedefine1(int max,Dict *arr){
+	int mi,ma;
+
+	ShowList(max,arr);
+	system("cls");
+	do{
+		printf("input min: ");
+		scanf("%i",&mi);
+		printf("printf max: ");
+		scanf("%i",&ma);
+		if(mi<1||mi>max-3||ma<mi+3||ma>max||ma<1) 
+		printf("incorrect input, gap should be minmum 4 words...\n");
+
+	}while(mi<1||mi>max-3||ma<mi+3||ma>max||ma<1);
+	
+	EnUa(arr,ma-1,mi-1);
+}
+
+
+
